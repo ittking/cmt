@@ -28,11 +28,37 @@
 }
 
 .tools-item {
+  display: flex;
+  flex-direction: column;
   flex: 1;
   height: 440px;
   border: 1px solid #d9d9d9;
   border-radius: 5px;
   margin-right: 4px;
+}
+
+.title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-weight: bold;
+}
+
+.title span {
+  margin-left: 5px;
+}
+
+.tree-body {
+  flex: 1;
+}
+
+.tree-tools {
+  height: 80px;
+  border-top: 1px solid #d9d9d9;
+}
+
+.padding-5 {
+  padding: 5px;
 }
 
 .padding-10 {

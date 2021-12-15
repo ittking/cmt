@@ -1,38 +1,34 @@
 import './App.css';
 import React, { Component } from "react";
 import { Button, Tree } from "antd";
+import { DownOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import CodeMirror from "./components/CodeMirror/CodeMirror";
-import { CarryOutOutlined } from '@ant-design/icons';
+import http from './http';
 
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      treeData: [
-        {
-          title: '类别',
-          key: '0-0',
-          icon: <CarryOutOutlined />,
-          children: [
-            { title: '机构', key: '0-0-0-0', icon: <CarryOutOutlined /> },
-            {
-              title: '人员',
-              key: '0-0-0-1',
-              icon: <CarryOutOutlined />,
-            },
-          ],
-        },
-      ]
+      typeList: [],
     };
   }
 
-  componentDidMount() {
+  getPointTypes() {
+    http({
+      url: "/api/toolbox/srsourcecollect/findSrSourcecollectCategory"
+    }).then(res => {
+      this.setState({ typeList: [...res.data] });
+      console.log(this.state);
+    });
+  }
 
+  componentDidMount() {
+    this.getPointTypes();
   }
 
   render() {
-    const { treeData }  = this.state;
+    const { typeList, treeData } = this.state;
     return (
       <div className="App">
         <div className="form">
@@ -41,21 +37,26 @@ class App extends Component {
           </div>
           <ul className="tools">
             <li className="tools-item">
-              <Tree
-                showLine
-                defaultExpandedKeys={['0-0-0']}
-                treeData={treeData}
-              ></Tree>
+              <div className="tree-body padding-10">
+                <div className="title">
+                  < UnorderedListOutlined />
+                  <span>类别</span>
+                </div>
+                <Tree
+                  className="tree-list padding-10"
+                  showLine
+                  switcherIcon={<DownOutlined />}
+                  fieldNames={{ title: "description", key: "type" }}
+                  treeData={typeList}
+                ></Tree>
+              </div>
+              <div className="tree-tools"></div>
             </li>
-            <li className="tools-item">
-              <Tree
-                showLine
-                defaultExpandedKeys={['0-0-0']}
-                treeData={treeData}
-              ></Tree>
+            <li className="tools-item padding-10">
+              111
             </li>
-            <li className="tools-item">1</li>
-            <li className="tools-item">1</li>
+            <li className="tools-item padding-10">1</li>
+            <li className="tools-item padding-10">1</li>
           </ul>
           <div className="footer">
             <Button type="primary" danger>检查</Button>
