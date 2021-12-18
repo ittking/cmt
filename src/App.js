@@ -1,7 +1,13 @@
 import './App.css';
 import React, { Component } from "react";
 import { Button, Tree } from "antd";
-import { DownOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import {
+  DownOutlined,
+  UnorderedListOutlined,
+  CodepenOutlined,
+  ClusterOutlined,
+  BorderLeftOutlined
+} from '@ant-design/icons';
 import CodeMirror from "./components/CodeMirror/CodeMirror";
 import http from './http';
 
@@ -28,7 +34,7 @@ class App extends Component {
   }
 
   render() {
-    const { typeList, treeData } = this.state;
+    const { typeList } = this.state;
     return (
       <div className="App">
         <div className="form">
@@ -53,10 +59,32 @@ class App extends Component {
               <div className="tree-tools"></div>
             </li>
             <li className="tools-item padding-10">
-              111
+              <div className="title">
+                <BorderLeftOutlined />
+                <span>指标</span>
+              </div>
+              <Tree
+                className="tree-list padding-10"
+                showLine
+                switcherIcon={<DownOutlined />}
+                fieldNames={{ title: "description", key: "type" }}
+                treeData={typeList}
+              ></Tree>
             </li>
-            <li className="tools-item padding-10">1</li>
-            <li className="tools-item padding-10">1</li>
+            <li className="tools-item padding-10">
+              <div className="title">
+                < CodepenOutlined />
+                <span>代码</span>
+              </div>
+              <div className="tree-list padding-10">dawdadaw</div>
+            </li>
+            <li className="tools-item padding-10">
+              <div className="title">
+                <ClusterOutlined />
+                <span>运算符</span>
+              </div>
+              <div className="tree-list padding-10">dawdadaw</div>
+            </li>
           </ul>
           <div className="footer">
             <Button type="primary" danger>检查</Button>
