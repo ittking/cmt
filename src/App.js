@@ -11,6 +11,8 @@ import {
 } from '@ant-design/icons';
 import CodeMirror from "./components/CodeMirror/CodeMirror";
 import http from './http';
+import EventsEmitter from "events";
+const events = new EventsEmitter();
 // const ProListener = require("./components/formula/ProListener").ProListener;
 // const ProParser = require("./components/formula/ProParser");
 
@@ -26,10 +28,10 @@ class App extends Component {
         typeid: "",
         description: ""
       },
-      poin: {
-        setid: "",
+      point: {
+        fieldName: "",
         description: ""
-      }
+      },
     };
   }
 
@@ -69,15 +71,15 @@ class App extends Component {
   }
 
   // 获取指标
-  getPointList(e) {
+  getPointList(id, e) {
     http({
-      url: `/api/toolbox/srbuiltcollect/findBuildCollectList/${e[0]}`
+      url: `/api/toolbox/srbuiltcollect/findBuildCollectList/${id}`
     }).then(res => {
       if (res && res.data) {
         const data = res.data.map(p => {
           p.key = _.cloneDeep(p.ordersame); p.selectable = false; return p;
         })
-        this.setState({ pointList: [...data] });
+        this.setState({ pointList: [...data], type: { typeid: e.node.typeid, description: e.node.description } });
       }
     });
   }
@@ -108,6 +110,17 @@ class App extends Component {
     })
   }
 
+  // 插入字段
+  insertField(e) {
+    const parentField = _.find(this.state.pointList, point => point.setid === e.node.SetId);
+    const field = { fieldName: e.node.FieldName, description: e.node.description };
+    // const code = `${parentField.setid}.${field.fieldName}`;
+    const param = `~${parentField.description}.${field.description}~`;
+    // console.log(param);
+    // console.log(code);
+    events.emit("insert", param);
+  }
+
   // 获取运算符
   getOptionsTree() {
     http({
@@ -134,7 +147,7 @@ class App extends Component {
       <div className="App">
         <div className="form">
           <div className="editor">
-            <CodeMirror></CodeMirror>
+            <CodeMirror events={events}></CodeMirror>
           </div>
           <ul className="tools">
             <li className="tools-item">
@@ -150,7 +163,7 @@ class App extends Component {
                   treeData={typeList}
                   fieldNames={{ title: 'description', key: 'type' }}
                   loadData={this.getTypeDetail.bind(this)}
-                  onSelect={e => this.getPointList(e)}
+                  onSelect={(key, e) => this.getPointList(key[0], e)}
                 ></Tree>
               </div>
               <div className="tree-tools">
@@ -167,10 +180,12 @@ class App extends Component {
               <Tree
                 className="tree-list padding-10"
                 showLine
+                blockNode
                 switcherIcon={<DownOutlined />}
                 fieldNames={{ title: "description" }}
                 treeData={pointList}
                 loadData={this.getPointDetail.bind(this)}
+                onSelect={(key, e) => this.insertField(e)}
               ></Tree>
             </li>
             <li className="tools-item padding-10">

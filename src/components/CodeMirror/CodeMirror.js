@@ -30,7 +30,6 @@ class CodeMirror extends Component {
   }
 
   insertField(field) {
-    field = field || "～测试.测试~";
     const currCursorLoc = this.cm.getCursor();
     const fieldMarkText = this._getFieldMarkText(field);
     this.cm.replaceRange(field, currCursorLoc);
@@ -48,12 +47,15 @@ class CodeMirror extends Component {
 
   _getFieldMarkText(field) {
     var fieldMarkText = document.createElement('span');
-    fieldMarkText.innerText = field.title;
+    fieldMarkText.innerText = field;
     fieldMarkText.classList.add('cm-field-marker')
     return fieldMarkText;
   }
 
   componentDidMount() {
+    this.props.events.on("insert", (field) => {
+      this.insertField(field);
+    });
   }
 
   render() {
