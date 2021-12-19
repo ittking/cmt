@@ -10,8 +10,8 @@ import {
 } from '@ant-design/icons';
 import CodeMirror from "./components/CodeMirror/CodeMirror";
 import http from './http';
-const ProListener = require("./components/formula/ProListener").ProListener;
-const ProParser = require("./components/formula/ProParser");
+// const ProListener = require("./components/formula/ProListener").ProListener;
+// const ProParser = require("./components/formula/ProParser");
 
 class App extends Component {
   constructor(props) {
