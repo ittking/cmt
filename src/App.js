@@ -75,7 +75,7 @@ class App extends Component {
     }).then(res => {
       if (res && res.data) {
         const data = res.data.map(p => {
-          p.key = _.cloneDeep(p.ordersame); return p;
+          p.key = _.cloneDeep(p.ordersame); p.selectable = false; return p;
         })
         this.setState({ pointList: [...data] });
       }
