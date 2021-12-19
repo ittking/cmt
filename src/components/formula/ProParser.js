@@ -763,7 +763,7 @@ ProParser.prototype.stat = function() {
             this.enterOuterAlt(localctx, 6);
             this.state = 71;
             localctx._OTHER = this.match(ProParser.OTHER);
-             com.fsdn.pro.formula.utils.ExceptionUtils.throwException("无法识别第�??"+(localctx._OTHER === null ? 0 : localctx._OTHER.line)+"】行的字符串: �?"+(localctx._OTHER===null ? null : localctx._OTHER.text)+"�?"); 
+             com.fsdn.pro.formula.utils.ExceptionUtils.throwException("无法识别第�??"+(localctx._OTHER === null ? 0 : localctx._OTHER.line)+"】行的字符串: �?"+(localctx._OTHER===null ? null : localctx._OTHER.text)+"�?"); 
             break;
         default:
             throw new antlr4.error.NoViableAltException(this);

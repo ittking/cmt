@@ -10,6 +10,8 @@ import {
 } from '@ant-design/icons';
 import CodeMirror from "./components/CodeMirror/CodeMirror";
 import http from './http';
+const ProListener = require("./components/formula/ProListener").ProListener;
+const ProParser = require("./components/formula/ProParser");
 
 class App extends Component {
   constructor(props) {
@@ -60,6 +62,9 @@ class App extends Component {
     this.getPointTypes();
     this.getPointList();
     this.getOptionsTree();
+
+    // console.log(ProListener);
+    // console.log(ProParser);
   }
 
   render() {
