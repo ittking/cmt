@@ -19,6 +19,7 @@ class App extends Component {
       typeList: [], // 类别列表
       pointList: [], // 指标列表
       optionsTree: [], // 运算符
+      cm: "cm"
     };
   }
 

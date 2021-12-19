@@ -15,7 +15,7 @@ class CodeMirror extends Component {
       options: {
         mode: 'formula',
         theme: 'formula-default',
-        autofocus:true,
+        autofocus: true,
         hintOptions: {
           hint: this._getHint,
           completeSingle: false,
@@ -24,12 +24,30 @@ class CodeMirror extends Component {
         },
       },
       editor: null, // 编辑器实例
-      value: ""
+      value: "",
+      cm: null, // 编辑器对象
     };
   }
 
-  componentDidMount() {
+  insertField(field) {
+    field = field || "～测试.测试~";
+    const currCursorLoc = this.cm.getCursor();
+    console.log("currCursorLoc===>", currCursorLoc);
+    this.cm.replaceRange(field, currCursorLoc);
+    this.cm.markText(currCursorLoc, { ch: currCursorLoc.ch + field.length, line: currCursorLoc.line }, {
+      className: 'cm-form-field',
+      atomic: true,
+      replacedWith: field,
+      inclusiveLeft: false,
+      inclusiveRight: false,
+    })
+    setTimeout(() => {
+      this.cm.focus();
+    }, 0)
+  }
 
+  componentDidMount() {
+    console.log(this.cm);
   }
 
   render() {
@@ -38,6 +56,7 @@ class CodeMirror extends Component {
       <CodeMirrorEditor
         className="cm-s-formula-default"
         value={value}
+        ref={cm => this.cm = cm && cm.editor}
         options={options}
         editorDidMount={editor}
       ></CodeMirrorEditor>
