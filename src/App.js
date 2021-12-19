@@ -1,6 +1,7 @@
 import './App.css';
 import React, { Component } from "react";
 import { Button, Tree, Checkbox } from "antd";
+import _ from "lodash";
 import {
   DownOutlined,
   UnorderedListOutlined,
@@ -21,32 +22,93 @@ class App extends Component {
       typeList: [], // 类别列表
       pointList: [], // 指标列表
       optionsTree: [], // 运算符
-      cm: "cm"
+      type: {
+        typeid: "",
+        description: ""
+      },
+      poin: {
+        setid: "",
+        description: ""
+      }
     };
   }
 
-  // 获取指标类型列表
-  getPointTypes() {
+  // 获取类型
+  getTypes() {
     http({
       url: "/api/toolbox/srsourcecollect/findSrSourcecollectCategory"
     }).then(res => {
-      if (res) {
-        this.setState({ typeList: [...res.data] });
+      if (res && res.data) {
+        const data = res.data.map(t => {
+          t.selectable = false; return t;
+        })
+        this.setState({ typeList: [...data] });
       }
     });
   }
 
-  getPointList() {
-    const typeid = "A001";
+  // 获取类别详情
+  getTypeDetail(e) {
+    return new Promise((resolve) => {
+      http({
+        url: `/api/toolbox/srsourcecollect/findSrSourcecollectBytype/${e.type}`
+      }).then(res => {
+        if (res && res.data) {
+          const children = res.data.map(t => {
+            t.isLeaf = true; t.type = t.typeid; return t;
+          })
+          const list = this.state.typeList.map(t => {
+            if (t.type === e.type) t.children = children;
+            return t;
+          })
+          this.setState({ typeList: [...list] });
+        }
+        resolve()
+      });
+    })
+  }
+
+  // 获取指标
+  getPointList(e) {
     http({
-      url: `/api/toolbox/srbuiltcollect/findBuildCollectList/${typeid}`
+      url: `/api/toolbox/srbuiltcollect/findBuildCollectList/${e[0]}`
     }).then(res => {
-      if (res) {
-        this.setState({ pointList: [...res.data] });
+      if (res && res.data) {
+        const data = res.data.map(p => {
+          p.key = _.cloneDeep(p.ordersame); return p;
+        })
+        this.setState({ pointList: [...data] });
       }
     });
   }
 
+  // 获取指标详情
+  getPointDetail(e) {
+    return new Promise((resolve) => {
+      http({
+        method: "POST",
+        url: "/api/toolbox/srbuiltitem/findSrBuildItemList",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        data: JSON.stringify({ typeid: e.typeid, setid: e.setid })
+      }).then(res => {
+        if (res && res.data) {
+          const children = res.data.map(t => {
+            t.isLeaf = true; t.key = _.cloneDeep(t.FieldName); return t;
+          })
+          const list = this.state.pointList.map(t => {
+            if (t.setid === e.setid) t.children = children;
+            return t;
+          })
+          this.setState({ pointList: [...list] });
+        }
+        resolve()
+      });
+    })
+  }
+
+  // 获取运算符
   getOptionsTree() {
     http({
       method: "POST",
@@ -59,8 +121,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.getPointTypes();
-    this.getPointList();
+    this.getTypes();
     this.getOptionsTree();
 
     // console.log(ProListener);
@@ -86,8 +147,10 @@ class App extends Component {
                   className="tree-list padding-10"
                   showLine
                   switcherIcon={<DownOutlined />}
-                  fieldNames={{ title: "description", key: "type" }}
                   treeData={typeList}
+                  fieldNames={{ title: 'description', key: 'type' }}
+                  loadData={this.getTypeDetail.bind(this)}
+                  onSelect={e => this.getPointList(e)}
                 ></Tree>
               </div>
               <div className="tree-tools">
@@ -105,8 +168,9 @@ class App extends Component {
                 className="tree-list padding-10"
                 showLine
                 switcherIcon={<DownOutlined />}
-                fieldNames={{ title: "description", key: "setid" }}
+                fieldNames={{ title: "description" }}
                 treeData={pointList}
+                loadData={this.getPointDetail.bind(this)}
               ></Tree>
             </li>
             <li className="tools-item padding-10">

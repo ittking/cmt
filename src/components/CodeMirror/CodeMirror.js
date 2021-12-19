@@ -20,11 +20,11 @@ class CodeMirror extends Component {
           hint: this._getHint,
           completeSingle: false,
           alignWithWord: true,
-          closeOnUnfocus: true
+          closeOnUnfocus: true,
         },
       },
       editor: null, // 编辑器实例
-      value: "",
+      value: "请输入代码！",
       cm: null, // 编辑器对象
     };
   }
