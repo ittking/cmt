@@ -118,7 +118,14 @@ class App extends Component {
     const param = `~${parentField.description}.${field.description}~`;
     // console.log(param);
     // console.log(code);
-    events.emit("insert", param);
+    events.emit("insertfield", param);
+  }
+
+  // 插入函数
+  addFunction(e) {
+    if (e.node.text) {
+      events.emit("addFunction", e.node.text);
+    }
   }
 
   // 获取运算符
@@ -128,8 +135,29 @@ class App extends Component {
       url: "/api/toolbox/stformula/listFormulaOperationsTree"
     }).then(res => {
       if (res) {
-        this.setState({ optionsTree: [...res.data] });
+        const data = this.updateTree(res.data);
+        this.setState({ optionsTree: [...data] });
       }
+    });
+  }
+
+  // 更新tree
+  updateTree(list, id, children) {
+    return list.map(node => {
+      if (node.id === id) {
+        return {
+          ...node,
+          children,
+        };
+      }
+      if (node.children) {
+        return {
+          ...node,
+          selectable: false,
+          children: this.updateTree(node.children, id, children),
+        };
+      }
+      return node;
     });
   }
 
@@ -206,6 +234,7 @@ class App extends Component {
                 switcherIcon={<DownOutlined />}
                 fieldNames={{ title: "id", key: "id" }}
                 treeData={optionsTree}
+                onSelect={(key, e) => this.addFunction(e)}
               ></Tree>
             </li>
           </ul>

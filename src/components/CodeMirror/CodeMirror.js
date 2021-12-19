@@ -24,12 +24,13 @@ class CodeMirror extends Component {
         },
       },
       editor: null, // 编辑器实例
-      value: "请输入代码！",
+      value: "",
       cm: null, // 编辑器对象
     };
   }
 
-  insertField(field) {
+  // 插入字段
+  _insertField(field) {
     const currCursorLoc = this.cm.getCursor();
     const fieldMarkText = this._getFieldMarkText(field);
     this.cm.replaceRange(field, currCursorLoc);
@@ -45,6 +46,18 @@ class CodeMirror extends Component {
     }, 0)
   }
 
+  // 插入函数
+  _addFunction(funcName) {
+    const currCursorLoc = this.cm.getCursor();
+    this.cm.replaceRange(funcName, currCursorLoc);
+
+    setTimeout(() => {
+      this.cm.setCursor({ ch: currCursorLoc.ch + funcName.length, line: currCursorLoc.line })
+      this.cm.focus();
+    }, 0)
+  }
+
+  // 获取字段个体
   _getFieldMarkText(field) {
     var fieldMarkText = document.createElement('span');
     fieldMarkText.innerText = field;
@@ -53,8 +66,12 @@ class CodeMirror extends Component {
   }
 
   componentDidMount() {
-    this.props.events.on("insert", (field) => {
-      this.insertField(field);
+    this.props.events.on("insertfield", (field) => {
+      this._insertField(field);
+    });
+
+    this.props.events.on("addFunction", (name) => {
+      this._addFunction(name);
     });
   }
 
