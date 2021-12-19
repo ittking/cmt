@@ -1,6 +1,6 @@
 import './App.css';
 import React, { Component } from "react";
-import { Button, Tree } from "antd";
+import { Button, Tree, Checkbox } from "antd";
 import {
   DownOutlined,
   UnorderedListOutlined,
@@ -16,25 +16,53 @@ class App extends Component {
     super(props);
 
     this.state = {
-      typeList: [],
+      typeList: [], // 类别列表
+      pointList: [], // 指标列表
+      optionsTree: [], // 运算符
     };
   }
 
+  // 获取指标类型列表
   getPointTypes() {
     http({
       url: "/api/toolbox/srsourcecollect/findSrSourcecollectCategory"
     }).then(res => {
-      this.setState({ typeList: [...res.data] });
-      console.log(this.state);
+      if (res) {
+        this.setState({ typeList: [...res.data] });
+      }
+    });
+  }
+
+  getPointList() {
+    const typeid = "A001";
+    http({
+      url: `/api/toolbox/srbuiltcollect/findBuildCollectList/${typeid}`
+    }).then(res => {
+      if (res) {
+        this.setState({ pointList: [...res.data] });
+      }
+    });
+  }
+
+  getOptionsTree() {
+    http({
+      method: "POST",
+      url: "/api/toolbox/stformula/listFormulaOperationsTree"
+    }).then(res => {
+      if (res) {
+        this.setState({ optionsTree: [...res.data] });
+      }
     });
   }
 
   componentDidMount() {
     this.getPointTypes();
+    this.getPointList();
+    this.getOptionsTree();
   }
 
   render() {
-    const { typeList } = this.state;
+    const { typeList, pointList, optionsTree } = this.state;
     return (
       <div className="App">
         <div className="form">
@@ -43,7 +71,7 @@ class App extends Component {
           </div>
           <ul className="tools">
             <li className="tools-item">
-              <div className="tree-body padding-10">
+              <div className="tree-list padding-10">
                 <div className="title">
                   < UnorderedListOutlined />
                   <span>类别</span>
@@ -56,7 +84,11 @@ class App extends Component {
                   treeData={typeList}
                 ></Tree>
               </div>
-              <div className="tree-tools"></div>
+              <div className="tree-tools">
+                <Checkbox className="checkbox-item">显示代码指标</Checkbox>
+                <Checkbox className="checkbox-item">显示字符指标</Checkbox>
+                <Checkbox className="checkbox-item">使用指标编码</Checkbox>
+              </div>
             </li>
             <li className="tools-item padding-10">
               <div className="title">
@@ -67,8 +99,8 @@ class App extends Component {
                 className="tree-list padding-10"
                 showLine
                 switcherIcon={<DownOutlined />}
-                fieldNames={{ title: "description", key: "type" }}
-                treeData={typeList}
+                fieldNames={{ title: "description", key: "setid" }}
+                treeData={pointList}
               ></Tree>
             </li>
             <li className="tools-item padding-10">
@@ -76,14 +108,20 @@ class App extends Component {
                 < CodepenOutlined />
                 <span>代码</span>
               </div>
-              <div className="tree-list padding-10">dawdadaw</div>
+              <div className="tree-list padding-10"></div>
             </li>
             <li className="tools-item padding-10">
               <div className="title">
                 <ClusterOutlined />
                 <span>运算符</span>
               </div>
-              <div className="tree-list padding-10">dawdadaw</div>
+              <Tree
+                className="tree-list padding-10"
+                showLine
+                switcherIcon={<DownOutlined />}
+                fieldNames={{ title: "id", key: "id" }}
+                treeData={optionsTree}
+              ></Tree>
             </li>
           </ul>
           <div className="footer">

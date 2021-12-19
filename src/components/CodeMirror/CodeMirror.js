@@ -16,8 +16,6 @@ class CodeMirror extends Component {
         mode: 'formula',
         theme: 'formula-default',
         autofocus:true,
-        extraKeys: { 'Alt': 'autocomplete' },
-        autofocus: true,
         hintOptions: {
           hint: this._getHint,
           completeSingle: false,
