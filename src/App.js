@@ -13,8 +13,6 @@ import CodeMirror from "./components/CodeMirror/CodeMirror";
 import http from './http';
 import EventsEmitter from "events";
 const events = new EventsEmitter();
-// const ProListener = require("./components/formula/ProListener").ProListener;
-// const ProParser = require("./components/formula/ProParser");
 
 class App extends Component {
   constructor(props) {
@@ -114,10 +112,9 @@ class App extends Component {
   insertField(e) {
     const parentField = _.find(this.state.pointList, point => point.setid === e.node.SetId);
     const field = { fieldName: e.node.FieldName, description: e.node.description };
-    // const code = `${parentField.setid}.${field.fieldName}`;
+    const code = `${parentField.setid}.${field.fieldName}`;
     const param = `~${parentField.description}.${field.description}~`;
-    // console.log(param);
-    // console.log(code);
+    console.log("code===>",code);
     events.emit("insertfield", param);
   }
 
@@ -164,9 +161,6 @@ class App extends Component {
   componentDidMount() {
     this.getTypes();
     this.getOptionsTree();
-
-    // console.log(ProListener);
-    // console.log(ProParser);
   }
 
   render() {
