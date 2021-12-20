@@ -10,9 +10,15 @@ import {
   BorderLeftOutlined
 } from '@ant-design/icons';
 import CodeMirror from "./components/CodeMirror/CodeMirror";
-import http from './http';
 import EventsEmitter from "events";
-const events = new EventsEmitter();
+import {
+  getTypePoinList,
+  getTypes,
+  getTypeDetail,
+  getPointList,
+  getPointDetail,
+  getOptionsTree
+} from "./api";
 
 class App extends Component {
   constructor(props) {
@@ -22,123 +28,75 @@ class App extends Component {
       typeList: [], // 类别列表
       pointList: [], // 指标列表
       optionsTree: [], // 运算符
-      type: {
-        typeid: "",
-        description: ""
-      },
-      point: {
-        fieldName: "",
-        description: ""
-      },
+      events: new EventsEmitter()
     };
-  }
-
-  // 获取类型
-  getTypes() {
-    http({
-      url: "/api/toolbox/srsourcecollect/findSrSourcecollectCategory"
-    }).then(res => {
-      if (res && res.data) {
-        const data = res.data.map(t => {
-          t.selectable = false; return t;
-        })
-        this.setState({ typeList: [...data] });
-      }
-    });
   }
 
   // 获取类别详情
   getTypeDetail(e) {
+    const typeid = e.type;
     return new Promise((resolve) => {
-      http({
-        url: `/api/toolbox/srsourcecollect/findSrSourcecollectBytype/${e.type}`
-      }).then(res => {
-        if (res && res.data) {
-          const children = res.data.map(t => {
-            t.isLeaf = true; t.type = t.typeid; return t;
-          })
-          const list = this.state.typeList.map(t => {
-            if (t.type === e.type) t.children = children;
-            return t;
-          })
-          this.setState({ typeList: [...list] });
-        }
-        resolve()
+      getTypeDetail(typeid).then(data => {
+        const children = data.map(t => {
+          t.isLeaf = true; t.type = t.typeid; return t;
+        })
+        const list = this.state.typeList.map(t => {
+          if (t.type === typeid) t.children = children;
+          return t;
+        })
+        this.setState({ typeList: [...list] });
       });
-    })
+      resolve();
+    });
   }
 
   // 获取指标
-  getPointList(id, e) {
+  getPointList(id) {
     this.setState({ pointList: [] });
-    http({
-      url: `/api/toolbox/srbuiltcollect/findBuildCollectList/${id}`
-    }).then(res => {
-      if (res && res.data) {
-        const data = res.data.map(p => {
-          p.key = _.cloneDeep(p.ordersame); p.selectable = false; return p;
-        })
-        this.setState({ pointList: [...data], type: { typeid: e.node.typeid, description: e.node.description } });
-      }
+    getPointList(id).then(data => {
+      const result = data.map(p => {
+        p.key = _.cloneDeep(p.ordersame); p.selectable = false; return p;
+      })
+      this.setState({ pointList: [...result] });
     });
   }
 
   // 获取指标详情
   getPointDetail(e) {
     return new Promise((resolve) => {
-      http({
-        method: "POST",
-        url: "/api/toolbox/srbuiltitem/findSrBuildItemList",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        data: JSON.stringify({ typeid: e.typeid, setid: e.setid })
-      }).then(res => {
-        if (res && res.data) {
-          const children = res.data.map(t => {
-            t.isLeaf = true; t.key = _.cloneDeep(t.FieldName); return t;
-          })
-          const list = this.state.pointList.map(t => {
-            if (t.setid === e.setid) {
-              t.children = children; t.selectable = false;
-            }
-            return t;
-          })
-          this.setState({ pointList: [...list] });
-        }
-        resolve()
+      getPointDetail(e.typeid, e.setid).then(data => {
+        const children = data.map(t => {
+          t.isLeaf = true; t.key = _.cloneDeep(t.FieldName); return t;
+        })
+        const list = this.state.pointList.map(t => {
+          if (t.setid === e.setid) {
+            t.children = children; t.selectable = false;
+          }
+          return t;
+        })
+        this.setState({ pointList: [...list] });
       });
+      resolve();
     })
   }
 
   // 插入字段
   insertField(e) {
-    const parentField = _.find(this.state.pointList, point => point.setid === e.node.SetId);
-    const field = { fieldName: e.node.FieldName, description: e.node.description };
+    const { SetId, FieldName, description } = e.node;
+    const parentField = _.find(this.state.pointList, point => point.setid === SetId);
+    const field = { fieldName: FieldName, description: description };
     const code = `${parentField.setid}.${field.fieldName}`;
     const param = `~${parentField.description}.${field.description}~`;
-    console.log("code===>", code);
-    events.emit("insertfield", param);
+    this.state.events.emit("insertfield", param);
+
+    console.log(code,"_", param);
   }
 
   // 插入函数
   addFunction(e) {
     if (e.node.text) {
-      events.emit("addFunction", e.node.text);
+      this.state.events.emit("addFunction", e.node.text);
     }
-  }
-
-  // 获取运算符
-  getOptionsTree() {
-    http({
-      method: "POST",
-      url: "/api/toolbox/stformula/listFormulaOperationsTree"
-    }).then(res => {
-      if (res) {
-        const data = this.updateTree(res.data);
-        this.setState({ optionsTree: [...data] });
-      }
-    });
   }
 
   // 更新tree
@@ -163,12 +121,28 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.getTypes();
-    this.getOptionsTree();
+    // 获取运算符
+    getOptionsTree().then(data => {
+      const result = this.updateTree(data);
+      this.setState({ optionsTree: [...result] });
+    });
+
+    // 获取类别指标树
+    getTypePoinList().then(res => {
+      console.log(res);
+    });
+
+    // 获取类别
+    getTypes().then(data => {
+      const result = data.map(t => {
+        t.selectable = false; return t;
+      })
+      this.setState({ typeList: [...result] });
+    });
   }
 
   render() {
-    const { typeList, pointList, optionsTree } = this.state;
+    const { typeList, pointList, optionsTree, events } = this.state;
     return (
       <div className="App">
         <div className="form">
@@ -203,7 +177,7 @@ class App extends Component {
                 <BorderLeftOutlined />
                 <span>指标</span>
               </div>
-              { pointList.length ? <Tree
+              {pointList.length ? <Tree
                 className="tree-list padding-10"
                 showLine
                 blockNode
@@ -212,7 +186,7 @@ class App extends Component {
                 treeData={pointList}
                 loadData={this.getPointDetail.bind(this)}
                 onSelect={(key, e) => this.insertField(e)}
-              ></Tree> : "" }
+              ></Tree> : ""}
             </li>
             <li className="tools-item padding-10">
               <div className="title">
