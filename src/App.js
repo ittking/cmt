@@ -17,7 +17,8 @@ import {
   getTypeDetail,
   getPointList,
   getPointDetail,
-  getOptionsTree
+  getOptionsTree,
+  translateCode
 } from "./api";
 
 class App extends Component {
@@ -25,10 +26,13 @@ class App extends Component {
     super(props);
 
     this.state = {
-      typeList: [], // 类别列表
-      pointList: [], // 指标列表
+      tree: [], // 类别指标树
+      typeList: [], // 类别
+      pointList: [], // 指标
       optionsTree: [], // 运算符
       value: "", // 编辑器内容
+      isOnlyCodePoint: false, // 是否仅显示代码指标
+      isOnlyStringPoint: false, // 是否仅显示字符指标
       events: new EventsEmitter()
     };
   }
@@ -86,11 +90,9 @@ class App extends Component {
     const { SetId, FieldName, description } = e.node;
     const parentField = _.find(this.state.pointList, point => point.setid === SetId);
     const field = { fieldName: FieldName, description: description };
-    const code = `${parentField.setid}.${field.fieldName}`;
+    // const code = `${parentField.setid}.${field.fieldName}`;
     const param = `~${parentField.description}.${field.description}~`;
     this.state.events.emit("insertfield", param);
-
-    console.log(code, "_", param);
   }
 
   // 插入函数
@@ -121,13 +123,11 @@ class App extends Component {
     });
   }
 
-  // 获取编辑器值
-  getValue(value) {
-    this.setState({value});
-  }
-
-  transform() {
-    console.log(this.state);
+  // 代码编译
+  translate() {
+    const list = this.state.tree;
+    const value = this.state.value;
+    translateCode(list,value);
   }
 
   componentDidMount() {
@@ -138,8 +138,8 @@ class App extends Component {
     });
 
     // 获取类别指标树
-    getTypePoinList().then(res => {
-      console.log(res);
+    getTypePoinList().then(data => {
+      this.setState({ tree: [...data] })
     });
 
     // 获取类别
@@ -152,12 +152,20 @@ class App extends Component {
   }
 
   render() {
-    const { typeList, pointList, optionsTree, events, value } = this.state;
+    const {
+      typeList,
+      pointList,
+      optionsTree,
+      events,
+      value,
+      isOnlyCodePoint,
+      isOnlyStringPoint
+    } = this.state;
     return (
       <div className="App">
         <div className="form">
           <div className="editor">
-            <CodeMirror events={events} value={value} change={(e) => this.getValue(e)}></CodeMirror>
+            <CodeMirror events={events} value={value} change={(value) => this.setState({ value })}></CodeMirror>
           </div>
           <ul className="tools">
             <li className="tools-item">
@@ -177,8 +185,8 @@ class App extends Component {
                 ></Tree>
               </div>
               <div className="tree-tools">
-                <Checkbox className="checkbox-item">显示代码指标</Checkbox>
-                <Checkbox className="checkbox-item">显示字符指标</Checkbox>
+                <Checkbox className="checkbox-item" checked={isOnlyCodePoint}>显示代码指标</Checkbox>
+                <Checkbox className="checkbox-item" checked={isOnlyStringPoint}>显示字符指标</Checkbox>
                 <Checkbox className="checkbox-item">使用指标编码</Checkbox>
               </div>
             </li>
@@ -222,7 +230,7 @@ class App extends Component {
           </ul>
           <div className="footer">
             <Button type="primary" danger>检查</Button>
-            <Button type="default" onClick={() => this.transform()}>翻译</Button>
+            <Button type="default" onClick={() => this.translate()}>翻译</Button>
             <Button type="default">取消</Button>
             <Button type="primary">确定</Button>
           </div>
