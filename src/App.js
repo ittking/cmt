@@ -12,6 +12,7 @@ import {
 import CodeMirror from "./components/CodeMirror/CodeMirror";
 import http from './http';
 import EventsEmitter from "events";
+import formula from "./components/peg/dist/zh";
 const events = new EventsEmitter();
 
 class App extends Component {
