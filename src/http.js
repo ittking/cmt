@@ -2,7 +2,7 @@ import axios from "axios";
 
 axios.interceptors.request.use(config => {
   
-  config.headers.token = "bGhr-c2cc65c4-e78e-4dcd-aa7a-217e6d27e1e8"
+  config.headers.token = "bGhr-9096ff50-bf88-4385-b47f-43ef670bc697"
   return config;
 },err => {
   return Promise.reject(err);// 请求错误处理

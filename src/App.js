@@ -12,7 +12,6 @@ import {
 import CodeMirror from "./components/CodeMirror/CodeMirror";
 import http from './http';
 import EventsEmitter from "events";
-import formula from "./components/peg/dist/zh";
 const events = new EventsEmitter();
 
 class App extends Component {
@@ -71,6 +70,7 @@ class App extends Component {
 
   // 获取指标
   getPointList(id, e) {
+    this.setState({ pointList: [] });
     http({
       url: `/api/toolbox/srbuiltcollect/findBuildCollectList/${id}`
     }).then(res => {
@@ -99,7 +99,9 @@ class App extends Component {
             t.isLeaf = true; t.key = _.cloneDeep(t.FieldName); return t;
           })
           const list = this.state.pointList.map(t => {
-            if (t.setid === e.setid) t.children = children;
+            if (t.setid === e.setid) {
+              t.children = children; t.selectable = false;
+            }
             return t;
           })
           this.setState({ pointList: [...list] });
@@ -115,7 +117,7 @@ class App extends Component {
     const field = { fieldName: e.node.FieldName, description: e.node.description };
     const code = `${parentField.setid}.${field.fieldName}`;
     const param = `~${parentField.description}.${field.description}~`;
-    console.log("code===>",code);
+    console.log("code===>", code);
     events.emit("insertfield", param);
   }
 
@@ -146,6 +148,7 @@ class App extends Component {
         return {
           ...node,
           children,
+          selectable: false,
         };
       }
       if (node.children) {
@@ -200,7 +203,7 @@ class App extends Component {
                 <BorderLeftOutlined />
                 <span>指标</span>
               </div>
-              <Tree
+              { pointList.length ? <Tree
                 className="tree-list padding-10"
                 showLine
                 blockNode
@@ -209,7 +212,7 @@ class App extends Component {
                 treeData={pointList}
                 loadData={this.getPointDetail.bind(this)}
                 onSelect={(key, e) => this.insertField(e)}
-              ></Tree>
+              ></Tree> : "" }
             </li>
             <li className="tools-item padding-10">
               <div className="title">
