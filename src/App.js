@@ -28,6 +28,7 @@ class App extends Component {
       typeList: [], // 类别列表
       pointList: [], // 指标列表
       optionsTree: [], // 运算符
+      value: "", // 编辑器内容
       events: new EventsEmitter()
     };
   }
@@ -89,7 +90,7 @@ class App extends Component {
     const param = `~${parentField.description}.${field.description}~`;
     this.state.events.emit("insertfield", param);
 
-    console.log(code,"_", param);
+    console.log(code, "_", param);
   }
 
   // 插入函数
@@ -120,6 +121,15 @@ class App extends Component {
     });
   }
 
+  // 获取编辑器值
+  getValue(value) {
+    this.setState({value});
+  }
+
+  transform() {
+    console.log(this.state);
+  }
+
   componentDidMount() {
     // 获取运算符
     getOptionsTree().then(data => {
@@ -142,12 +152,12 @@ class App extends Component {
   }
 
   render() {
-    const { typeList, pointList, optionsTree, events } = this.state;
+    const { typeList, pointList, optionsTree, events, value } = this.state;
     return (
       <div className="App">
         <div className="form">
           <div className="editor">
-            <CodeMirror events={events}></CodeMirror>
+            <CodeMirror events={events} value={value} change={(e) => this.getValue(e)}></CodeMirror>
           </div>
           <ul className="tools">
             <li className="tools-item">
@@ -212,7 +222,7 @@ class App extends Component {
           </ul>
           <div className="footer">
             <Button type="primary" danger>检查</Button>
-            <Button type="default">翻译</Button>
+            <Button type="default" onClick={() => this.transform()}>翻译</Button>
             <Button type="default">取消</Button>
             <Button type="primary">确定</Button>
           </div>

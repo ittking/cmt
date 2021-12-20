@@ -66,6 +66,11 @@ class CodeMirror extends Component {
   }
 
   componentDidMount() {
+    // 设置默认值
+    if (this.props.value) {
+      this.cm.setValue(this.props.value);
+    }
+
     this.props.events.on("insertfield", (field) => {
       this._insertField(field);
     });
@@ -73,6 +78,12 @@ class CodeMirror extends Component {
     this.props.events.on("addFunction", (name) => {
       this._addFunction(name);
     });
+
+    // 监听编辑器
+    this.cm.on("change", () => {
+      const value = this.cm.getValue();
+      this.props.change(value);
+    })
   }
 
   render() {
