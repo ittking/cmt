@@ -132,7 +132,7 @@ export const getOptionsTree = () => {
  */
 export const translateCode = (list, value) => {
   const fields = [];
-  let params = value.match(/[\u4e00-\u9fa5\（\）A-z0-9]+\.[\u4e00-\u9fa5\（\）A-z0-9]+/g);
+  let params = value.match(/[\u4e00-\u9fa5\（\）]+\.[\u4e00-\u9fa5\（\）]+/g);
   if (params && params.length) {
     _.each(params, param => {
       const item = param.split(".");
@@ -147,13 +147,14 @@ export const translateCode = (list, value) => {
   const dictionary = [];
   applyTree(list, dictionary);
   _.each(fields, field => {
-    const code = field.map(f => {
-      const one = _.find(dictionary, t => t.title === f);
-      return one.key;
-    }).join(".");
-    // eslint-disable-next-line no-eval
-    value = value.replace(eval(`/~${field.join(".")}~/g`), code);
-    
+    if (field.length) {
+      const code = field.map(f => {
+        const one = _.find(dictionary, t => t.title === f);
+        return one && one.key;
+      }).join(".");
+      // eslint-disable-next-line no-eval
+      value = value.replace(eval(`/~${field.join(".")}~/g`), code);
+    }
   });
   return value;
 }
