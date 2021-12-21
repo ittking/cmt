@@ -9,11 +9,11 @@ module.exports = (app) => {
       "^/api": ""
     }
   }))
-  app.use(createProxyMiddleware("/lg", {
+  app.use(createProxyMiddleware("/aps", {
     target: "http://tomcat.api.hualvhappy.com",
     changeOrigin: false,
     pathRewrite: {
-      "^/lg": ""
+      "^/aps": ""
     }
   }))
 }

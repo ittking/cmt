@@ -189,12 +189,16 @@ export const saveFormula = ({ formulaId, formulaName, formula, formulaText }) =>
   return new Promise((resolve, reject) => {
     http({
       method: "POST",
-      url: "/lg/formula/toolbox/stformula/saveFormulaData"
-    }, {
-      formulaId,
-      formulaName,
-      formula,
-      formulaText
+      url: "/aps/formula/toolbox/stformula/saveFormulaData",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      data: JSON.stringify({
+        formulaId,
+        formulaName,
+        formula,
+        formulaText
+      })
     }).then(res => {
       if (res) {
         resolve(res);

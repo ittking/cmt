@@ -257,7 +257,7 @@ class App extends Component {
             <Button type="primary" danger>检查</Button>
             <Button type="default" onClick={() => this.translate()}>翻译</Button>
             <Button type="default">取消</Button>
-            <Button type="primary">确定</Button>
+            <Button type="primary" onClick={() => this.save()}>确定</Button>
           </div>
         </div>
       </div>
