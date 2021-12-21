@@ -143,6 +143,8 @@ export const translateCode = (list, value) => {
         return "公式格式错误，请检查正确后，再翻译！";
       }
     });
+  } else {
+    return value;
   }
   const dictionary = [];
   applyTree(list, dictionary);
