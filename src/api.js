@@ -132,9 +132,8 @@ export const getOptionsTree = () => {
  */
 export const translateCode = (list, value) => {
   const items = [];
-  let params = value.match(/[~\u4e00-\u9fa5\（\）A-z0-9]+\.[~\u4e00-\u9fa5\（\）A-z0-9]+/g);
+  let params = value.match(/[\u4e00-\u9fa5\（\）A-z0-9]+\.[\u4e00-\u9fa5\（\）A-z0-9]+/g);
   if (params && params.length) {
-    params = params.map(param => param.replace(/~/g, ""));
     _.each(params, param => {
       const item = param.split(".");
       if (item && item.length === 2) {
@@ -145,8 +144,35 @@ export const translateCode = (list, value) => {
       }
     });
   }
-  // 去重
-  const result = _.uniq(items);
-  console.log(result);
-  return params;
+  const tree = [];
+  applyTree(list, tree);
+  const fields = _.uniq(items);
+  _.each(fields, field => {
+    const one = _.find(tree, t => t.title === field);
+    if (one) {
+      value = value.replace(/~/g, "");
+      // eslint-disable-next-line no-eval
+      value = value.replace(eval(`/${field}/g`), one.key);
+    }
+  });
+  return value;
+}
+
+/**
+ * 获取字典表
+ * @param {Array} list 
+ */
+function applyTree(list, tree = []) {
+  _.each(list, each => {
+    if (each.children) {
+      // eslint-disable-next-line no-unused-vars
+      applyTree(each.children, tree);
+    }
+    if (each.setid && each.typeid) {
+      tree.push({ key: each.typeid, title: each.description });
+    }
+    if (each.FieldName) {
+      tree.push({ key: each.FieldName, title: each.description });
+    }
+  });
 }

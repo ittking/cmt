@@ -31,6 +31,7 @@ class App extends Component {
       pointList: [], // 指标
       optionsTree: [], // 运算符
       value: "", // 编辑器内容
+      code: "", // 翻译代码
       isOnlyCodePoint: false, // 是否仅显示代码指标
       isOnlyStringPoint: false, // 是否仅显示字符指标
       events: new EventsEmitter()
@@ -127,7 +128,8 @@ class App extends Component {
   translate() {
     const list = this.state.tree;
     const value = this.state.value;
-    translateCode(list,value);
+    const code = translateCode(list,value);
+    this.setState({ code });
   }
 
   componentDidMount() {
@@ -159,13 +161,14 @@ class App extends Component {
       events,
       value,
       isOnlyCodePoint,
-      isOnlyStringPoint
+      isOnlyStringPoint,
+      code
     } = this.state;
     return (
       <div className="App">
         <div className="form">
           <div className="editor">
-            <CodeMirror events={events} value={value} change={(value) => this.setState({ value })}></CodeMirror>
+            <CodeMirror events={events} value={value} change={(value) => this.setState({ value, code: "" })}></CodeMirror>
           </div>
           <ul className="tools">
             <li className="tools-item">
@@ -211,7 +214,9 @@ class App extends Component {
                 < CodepenOutlined />
                 <span>代码</span>
               </div>
-              <div className="tree-list padding-10"></div>
+              <div className="tree-list padding-10">
+                <pre>{code}</pre>
+              </div>
             </li>
             <li className="tools-item padding-10">
               <div className="title">
