@@ -151,7 +151,7 @@ export const translateCode = (list, value) => {
   _.each(fields, field => {
     if (field.length) {
       const code = field.map(f => {
-        const one = _.find(dictionary, t => t.title === f);
+        const one = _.find(dictionary, d => d.title === f);
         return one && one.key;
       }).join(".");
       // eslint-disable-next-line no-eval
