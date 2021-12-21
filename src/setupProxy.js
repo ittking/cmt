@@ -4,14 +4,14 @@
 module.exports = (app) => {
   app.use(createProxyMiddleware("/api", {
     target: "http://27.185.13.109:7777",
-    changeOrigin: false,
+    changeOrigin: true,
     pathRewrite: {
       "^/api": ""
     }
   }))
   app.use(createProxyMiddleware("/aps", {
-    target: "http://tomcat.api.hualvhappy.com",
-    changeOrigin: false,
+    target: "http://tomcat3.api.hualvhappy.com",
+    changeOrigin: true,
     pathRewrite: {
       "^/aps": ""
     }
