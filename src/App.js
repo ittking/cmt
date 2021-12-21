@@ -1,6 +1,6 @@
 import './App.css';
 import React, { Component } from "react";
-import { Button, Tree, Checkbox } from "antd";
+import { Button, Tree, Checkbox, message } from "antd";
 import _ from "lodash";
 import {
   DownOutlined,
@@ -18,7 +18,8 @@ import {
   getPointList,
   getPointDetail,
   getOptionsTree,
-  translateCode
+  translateCode,
+  saveFormula
 } from "./api";
 
 class App extends Component {
@@ -130,6 +131,25 @@ class App extends Component {
     const value = this.state.value;
     const code = translateCode(list,value);
     this.setState({ code });
+  }
+
+  // 保存公式
+  save() {
+    const list = this.state.tree;
+    const value = this.state.value;
+    const code = translateCode(list,value);
+    saveFormula({
+      formulaId: "",
+      formulaName: `test_${new Date().getTime()}`,
+      formula: code,
+      formulaText: this.state.value
+    }).then(res => {
+      if (res && res.code === 200) {
+        message.success("保存成功！");
+      } else {
+        message.error("保存成功！");
+      }
+    });
   }
 
   componentDidMount() {

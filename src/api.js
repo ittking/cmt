@@ -179,3 +179,28 @@ function applyTree(list, dictionary = []) {
     }
   });
 }
+
+/**
+ * 保存公式
+ * @param {Object} param 
+ * @returns 
+ */
+export const saveFormula = ({ formulaId, formulaName, formula, formulaText }) => {
+  return new Promise((resolve, reject) => {
+    http({
+      method: "POST",
+      url: "/lg/formula/toolbox/stformula/saveFormulaData"
+    }, {
+      formulaId,
+      formulaName,
+      formula,
+      formulaText
+    }).then(res => {
+      if (res) {
+        resolve(res);
+      }
+    }).catch(err => {
+      reject(err);
+    });
+  });
+}
