@@ -131,29 +131,29 @@ export const getOptionsTree = () => {
  * @returns String
  */
 export const translateCode = (list, value) => {
-  const items = [];
+  const fields = [];
   let params = value.match(/[\u4e00-\u9fa5\（\）A-z0-9]+\.[\u4e00-\u9fa5\（\）A-z0-9]+/g);
   if (params && params.length) {
     _.each(params, param => {
       const item = param.split(".");
       if (item && item.length === 2) {
-        items.push(item[0]);
-        items.push(item[1]);
+        fields.push(item);
       } else {
         console.warn("公式翻译错误～");
+        return "公式格式错误，请检查正确后，再翻译！";
       }
     });
   }
-  const tree = [];
-  applyTree(list, tree);
-  const fields = _.uniq(items);
+  const dictionary = [];
+  applyTree(list, dictionary);
   _.each(fields, field => {
-    const one = _.find(tree, t => t.title === field);
-    if (one) {
-      value = value.replace(/~/g, "");
-      // eslint-disable-next-line no-eval
-      value = value.replace(eval(`/${field}/g`), one.key);
-    }
+    const code = field.map(f => {
+      const one = _.find(dictionary, t => t.title === f);
+      return one.key;
+    }).join(".");
+    // eslint-disable-next-line no-eval
+    value = value.replace(eval(`/~${field.join(".")}~/g`), code);
+    
   });
   return value;
 }
@@ -162,17 +162,17 @@ export const translateCode = (list, value) => {
  * 获取字典表
  * @param {Array} list 
  */
-function applyTree(list, tree = []) {
+function applyTree(list, dictionary = []) {
   _.each(list, each => {
     if (each.children) {
       // eslint-disable-next-line no-unused-vars
-      applyTree(each.children, tree);
+      applyTree(each.children, dictionary);
     }
     if (each.setid && each.typeid) {
-      tree.push({ key: each.typeid, title: each.description });
+      dictionary.push({ key: each.typeid, title: each.description });
     }
     if (each.FieldName) {
-      tree.push({ key: each.FieldName, title: each.description });
+      dictionary.push({ key: each.FieldName, title: each.description });
     }
   });
 }
