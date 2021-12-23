@@ -12,7 +12,7 @@ yarn install
 
 ## 配置用户 `Token`
 
-> 进入目录：src/http.js
+> 进入目录：src/http.js 
 
 
 ```
