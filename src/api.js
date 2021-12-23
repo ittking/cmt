@@ -132,7 +132,7 @@ export const getOptionsTree = () => {
  */
 export const translateCode = (list, value) => {
   const fields = [];
-  let params = value.match(/[\u4e00-\u9fa5\（\）]+\.[\u4e00-\u9fa5\（\）]+/g);
+  let params = value.match(/[\u4e00-\u9fa5（）]+\.[\u4e00-\u9fa5（）]+/g);
   if (params && params.length) {
     _.each(params, param => {
       const item = param.split(".");
