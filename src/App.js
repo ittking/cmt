@@ -171,6 +171,10 @@ class App extends Component {
       })
       this.setState({ typeList: [...result] });
     });
+
+    setTimeout(() => {
+      this.state.events.emit("resetCode", this.state.value);
+    }, 3000);
   }
 
   render() {

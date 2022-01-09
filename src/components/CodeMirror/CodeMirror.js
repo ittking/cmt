@@ -6,6 +6,7 @@ import "codemirror/lib/codemirror.js";
 import 'codemirror/mode/javascript/javascript';
 import './formula-default.css';
 import './formula-mode';
+import _ from "lodash";
 
 class CodeMirror extends Component {
   constructor(props) {
@@ -30,10 +31,10 @@ class CodeMirror extends Component {
   }
 
   // 插入字段
-  _insertField(field) {
-    const currCursorLoc = this.cm.getCursor();
+  _insertField(field, pos = null) {
+    const currCursorLoc = pos || this.cm.getCursor();
     const fieldMarkText = this._getFieldMarkText(field);
-    this.cm.replaceRange(field, currCursorLoc);
+    this.cm.replaceRange(field, currCursorLoc, { line: currCursorLoc.line, ch: currCursorLoc.ch + field.length });
     this.cm.markText(currCursorLoc, { ch: currCursorLoc.ch + field.length, line: currCursorLoc.line }, {
       className: 'cm-form-field',
       atomic: true,
@@ -65,9 +66,25 @@ class CodeMirror extends Component {
     return fieldMarkText;
   }
 
+  /**
+   * 回显代码
+   * @param value 回显内容
+   */
+  _resetCode(value) {
+    let params = value.match(/~[\u4e00-\u9fa5（）]+\.[\u4e00-\u9fa5（）]+~/g);
+    if (params && params.length) {
+      _.each(params, param => {
+        const index = value.indexOf(param);
+        const pos = this.cm.posFromIndex(index);
+        this._insertField(param, pos);
+      })
+    }
+  }
+
   componentDidMount() {
     // 设置默认值
     if (this.props.value) {
+      this._resetCode();
       this.cm.setValue(this.props.value);
     }
 
@@ -77,6 +94,10 @@ class CodeMirror extends Component {
 
     this.props.events.on("addFunction", (name) => {
       this._addFunction(name);
+    });
+
+    this.props.events.on("resetCode", (value) => {
+      this._resetCode(value);
     });
 
     // 监听编辑器
