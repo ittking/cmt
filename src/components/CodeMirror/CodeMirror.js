@@ -66,18 +66,19 @@ class CodeMirror extends Component {
     return fieldMarkText;
   }
 
-  /**
-   * 回显代码
-   * @param value 回显内容
-   */
-  _resetCode(value) {
-    let params = value.match(/~[\u4e00-\u9fa5（）]+\.[\u4e00-\u9fa5（）]+~/g);
-    if (params && params.length) {
-      _.each(params, param => {
-        const index = value.indexOf(param);
-        const pos = this.cm.posFromIndex(index);
-        this._insertField(param, pos);
-      })
+  // 回显代码
+  _resetCode() {
+    const lines = this.cm.lineCount();
+    for (let i = 0; i < lines; i++) {
+      const line = this.cm.getLine(i);
+      let params = line.match(/~[\u4e00-\u9fa5（）]+\.[\u4e00-\u9fa5（）]+~/g);
+      if (params && params.length) {
+        _.each(params, param => {
+          const index = line.indexOf(param);
+          const pos = this.cm.posFromIndex(index);
+          this._insertField(param, { line: i, ch: pos.ch });
+        })
+      }
     }
   }
 

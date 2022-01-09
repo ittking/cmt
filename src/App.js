@@ -173,7 +173,7 @@ class App extends Component {
     });
 
     setTimeout(() => {
-      this.state.events.emit("resetCode", this.state.value);
+      this.state.events.emit("resetCode");
     }, 3000);
   }
 
